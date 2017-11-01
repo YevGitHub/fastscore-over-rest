@@ -1,39 +1,74 @@
-Add new model:
+version: '2'
 
-`fastscore model add increment`{{execute}}
+  dashboard:
+    image: fastscore/dashboard:dev
+    networks:
+      - fastscore_net
+    stdin_open: true
+    ports:
+      - "8000:8000"
+    tty: true
+    environment:
+      CONNECT_PREFIX: https://connect:8001
+      STRICT_SSL: "false"
+    depends_on:
+      - connect
 
-Copy the following:
+  connect:
+    image: fastscore/connect:dev
+    networks:
+      - fastscore_net
+    stdin_open: true
+    tty: true
+    expose:
+      - "8001"
+    ports:
+      - "8001:8001"
+    depends_on:
+      - database
 
-```
-def action(datum):
-  yield datum+1
-```{{copy}}
+  engine-1:
+    image: fastscore/engine-x:dev
+    networks:
+      - fastscore_net
+    stdin_open: true
+    tty: true
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./data-1:/root/data
+    environment:
+        CONNECT_PREFIX: https://connect:8001
+    depends_on:
+      - connect
 
-Press CTRL-D to commit.
+  database:
+    image: fastscore/model-manage-mysql:dev
+    networks:
+      - fastscore_net
+    ports:
+      - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+ 
+  model-manage:
+    image: fastscore/model-manage:dev
+    networks:
+      - fastscore_net
+    stdin_open: true
+    tty: true
+    ports:
+      - "8002:8002"
+    depends_on:
+      - connect
+      - database
+    environment:
+      CONNECT_PREFIX: https://connect:8001
 
-Make sure model was addedd successfully:
-`fastscore model list`{{execute}}
+networks:
+  fastscore_net:
+    driver: bridge
 
-`fastscore model show increment`{{execute}}
-
-Create REST stream:
-`fastscore stream add rest`{{execute}}
-
-Copy the following:
-
-```
-{
-  "Version": "1.2"
-  "Encoding": "json",
-  "Envelope": null,
-  "Loop": false,
-  "Transport": "REST"
-}
-```{{copy}}
-
-Make sure stream was added successfully:
-
-`fastscore stream list`{{execute}}
-
-`fastscore stream show rest`{{execute}}
-   
+volumes:
+  db:
+    external: true
