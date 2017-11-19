@@ -1,7 +1,7 @@
 version: '2'
 services:
   dashboard:
-    image: fastscore/dashboard:dev
+    image: fastscore/dashboard:1.6.1
     networks:
       - fastscore_net
     stdin_open: true
@@ -15,7 +15,7 @@ services:
       - connect
 
   connect:
-    image: fastscore/connect:dev
+    image: fastscore/connect:1.6.1
     networks:
       - fastscore_net
     stdin_open: true
@@ -28,7 +28,7 @@ services:
       - database
 
   engine-1:
-    image: fastscore/engine-x:dev
+    image: fastscore/engine-x:1.6.1
     networks:
       - fastscore_net
     stdin_open: true
@@ -43,7 +43,7 @@ services:
       - connect
 
   database:
-    image: fastscore/model-manage-mysql:dev
+    image: fastscore/model-manage-mysql:1.6.1
     networks:
       - fastscore_net
     ports:
@@ -52,7 +52,7 @@ services:
       - db:/var/lib/mysql
  
   model-manage:
-    image: fastscore/model-manage:dev
+    image: fastscore/model-manage:1.6.1
     networks:
       - fastscore_net
     stdin_open: true
